@@ -42,11 +42,13 @@ def remove_complete_torrents(torrent_list, sonarr_list):
                 print(f"Removing: {torrent[0]}")
                 remove_list.append(torrent[1])
 
-    #qb.delete_permanently(remove_list)
+    qb.delete_permanently(remove_list)
+
 
 def pause_complete():
     torrents = get_torrents()
-    qb.pause_multiple(torrents[0][1])
+    if len(torrents) > 0:
+        qb.pause_multiple(torrents[0][1])
 
 
 def get_sonarr_history():
