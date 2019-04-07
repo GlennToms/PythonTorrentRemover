@@ -11,6 +11,9 @@ qb.login()
 sonarr_host_url = 'http://sonarr.local:6880/api'
 sonarr_api_key = '589b093bc3484ea5b941173280df0911'
 
+radarr_host_url = 'http://radarr.local:6880/api'
+radarr_api_key = 'dac2ba0c443f4798b9949a8de76c4d6b'
+
 
 # def get_torrents():
 #     torrents = qb.torrents()
@@ -64,9 +67,24 @@ def get_sonarr_history():
             hist_list.append(record['sourceTitle'])
     return hist_list
 
+
+def get_radarr_history():
+    # Instantiate SonarrAPI Object
+    radarr = SonarrAPI(radarr_host_url, radarr_api_key)
+
+    # Get and print TV Shows
+    hist_list = []
+    hist = radarr.get_history_size(100)
+    for record in hist['records']:
+        if record['data']['downloadClient'] == 'QBittorrent':
+            # print(f"radarr: {record['data']['downloadClient']} - {record['sourceTitle']}")
+            hist_list.append(record['sourceTitle'])
+    return hist_list
+
 if __name__ == '__main__':
     torrents = get_torrents()
     sonarr_list = get_sonarr_history()
+    radarr_list = get_radarr_history()
     remove_complete_torrents(torrents, sonarr_list)
     pause_complete()
     print("complete")
