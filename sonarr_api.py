@@ -75,7 +75,12 @@ class SonarrAPI(object):
     # DOES NOT WORK
     def get_history(self):
         """Gets history (grabs/failures/completed)"""
-        res = self.request_get("{}/history".format(self.host_url))
+        res = self.request_get("{}/history?pageSize=100".format(self.host_url))
+        return res.json()
+
+    def get_history_size(self, pageSize):
+        """Gets history (grabs/failures/completed)"""
+        res = self.request_get("{}/history?pageSize={}".format(self.host_url, pageSize))
         return res.json()
 
 
