@@ -4,15 +4,15 @@ from qbittorrent import Client
 from sonarr_api import SonarrAPI
 import sched, time
 
-# qb.login('admin', 'adminadmin') # not required when 'Bypass from localhost' setting is active.
-qb = Client('http://qbittorrent.local:6880/')
-qb.login()
+qb = Client('http://qbittorrent:8080/')
+# qb.login()
+qb.login('admin', 'adminadmin') # not required when 'Bypass from localhost' setting is active.
 
 
-sonarr_host_url = 'http://sonarr.local:6880/api'
+sonarr_host_url = 'http://sonarr:8080/api'
 sonarr_api_key = '589b093bc3484ea5b941173280df0911'
 
-radarr_host_url = 'http://radarr.local:6880/api'
+radarr_host_url = 'http://radarr:8080/api'
 radarr_api_key = 'dac2ba0c443f4798b9949a8de76c4d6b'
 
 s = sched.scheduler(time.time, time.sleep)
@@ -53,7 +53,7 @@ def get_sonarr_history():
     hist = sonarr.get_history_size(100)
     for record in hist['records']:
         if record['data']['downloadClient'] == 'QBittorrent':
-            # print(f"Sonarr: {record['data']['downloadClient']} - {record['sourceTitle']}")
+            print(f"Sonarr: {record['data']['downloadClient']} - {record['sourceTitle']}")
             hist_list.append(record['sourceTitle'])
     return hist_list
 
@@ -68,7 +68,7 @@ def get_radarr_history():
     for record in hist['records']:
         if 'downloadClient' in record['data']:
             if record['data']['downloadClient'] == 'QBittorrent':
-                # print(f"radarr: {record['data']['downloadClient']} - {record['sourceTitle']}")
+                print(f"Radarr: {record['data']['downloadClient']} - {record['sourceTitle']}")
                 hist_list.append(record['sourceTitle'])
     return hist_list
 
