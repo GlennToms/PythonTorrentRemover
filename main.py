@@ -2,6 +2,7 @@
 
 from qbittorrent import Client
 from sonarr_api import SonarrAPI
+import sched, time
 
 # qb.login('admin', 'adminadmin') # not required when 'Bypass from localhost' setting is active.
 qb = Client('http://qbittorrent.local:6880/')
@@ -14,18 +15,7 @@ sonarr_api_key = '589b093bc3484ea5b941173280df0911'
 radarr_host_url = 'http://radarr.local:6880/api'
 radarr_api_key = 'dac2ba0c443f4798b9949a8de76c4d6b'
 
-
-# def get_torrents():
-#     torrents = qb.torrents()
-
-#     torrent_list = []
-#     for torrent in torrents:
-#         if torrent['amount_left'] == 0:
-#             print(f"qBittorrent: Removing {torrent['name']}")
-#             torrent_list.append(torrent['hash'])
-#         else:
-#             print(f"qBittorrent: Keeping {torrent['name']}")
-#     return torrent_list
+s = sched.scheduler(time.time, time.sleep)
 
 def get_torrents():
     torrents = qb.torrents()
@@ -76,15 +66,24 @@ def get_radarr_history():
     hist_list = []
     hist = radarr.get_history_size(100)
     for record in hist['records']:
-        if record['data']['downloadClient'] == 'QBittorrent':
-            # print(f"radarr: {record['data']['downloadClient']} - {record['sourceTitle']}")
-            hist_list.append(record['sourceTitle'])
+        if 'downloadClient' in record['data']:
+            if record['data']['downloadClient'] == 'QBittorrent':
+                # print(f"radarr: {record['data']['downloadClient']} - {record['sourceTitle']}")
+                hist_list.append(record['sourceTitle'])
     return hist_list
 
-if __name__ == '__main__':
+
+def run():
     torrents = get_torrents()
-    sonarr_list = get_sonarr_history()
-    radarr_list = get_radarr_history()
-    remove_complete_torrents(torrents, sonarr_list)
-    pause_complete()
-    print("complete")
+    if len(torrents) > -1:
+        sonarr_list = get_sonarr_history()
+        radarr_list = get_radarr_history()
+        remove_complete_torrents(torrents, sonarr_list)
+        remove_complete_torrents(torrents, radarr_list)
+        pause_complete()
+    s.enter(300, 1, run, ())
+    s.run()
+
+
+if __name__ == '__main__':
+    run()
