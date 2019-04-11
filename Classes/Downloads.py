@@ -7,21 +7,6 @@ class IDownloadsClient:
     def __init__(self, **kwargs):
         pass
 
-    def get(list):
-        pass
-
-    def pause(list):
-        pass
-
-    def stop(list):
-        pass
-
-    def start(self):
-        pass
-
-    def remove(remove_list):
-        pass
-
 
 class QBitTorrentClient(IDownloadsClient):
 
@@ -35,8 +20,9 @@ class QBitTorrentClient(IDownloadsClient):
     def get(self):
         return self.client.torrents()
 
-    def pause(pause_list):
-        self.client.pause_multiple(pause_list)
+    def pause(self, pause_list):
+        for item in pause_list:
+            self.client.pause_multiple(str(pause_list[1]))
 
     def stop(list):
         pass
@@ -45,7 +31,7 @@ class QBitTorrentClient(IDownloadsClient):
         pass
 
     def remove(remove_list):
-        self.client.delete_permanently(remove_list)
+        self.client.delete_permanently(remove_list['hash'])
 
 
 class ArrClient(IDownloadsClient):
@@ -57,15 +43,3 @@ class ArrClient(IDownloadsClient):
 
     def get(self):
         return self.client.get_history_size(100)
-
-    def pause(list):
-        pass
-
-    def stop(list):
-        pass
-
-    def start(self):
-        pass
-
-    def remove(remove_list):
-        pass

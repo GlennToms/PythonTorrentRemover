@@ -15,8 +15,8 @@ qbit_client = Downloads.QBitTorrentClient(
 s = sched.scheduler(time.time, time.sleep)
 
 
-def get_downloads(DownloadsClient):
-    return DownloadsClient.get()
+def get_downloads(IDownloadsClient):
+    return IDownloadsClient.get()
 
 
 def completed_torrent_list(download_list, completed_list):
@@ -28,14 +28,14 @@ def completed_torrent_list(download_list, completed_list):
     return remove_list
 
 
-def remove_complete(DownloadsClient, remove_list):
+def remove_complete(IDownloadsClient, remove_list):
     if len(remove_list) > 0:
-        DownloadsClient.remove(remove_list)
+        IDownloadsClient.remove(remove_list)
 
 
-def pause_complete(DownloadsClient, pause_list):
+def pause_complete(IDownloadsClient, pause_list):
     if len(pause_list) > 0:
-        DownloadsClient.pause(pause_list)
+        IDownloadsClient.pause(pause_list)
 
 
 def parse_list(IParser, torrent_list):
