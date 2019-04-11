@@ -3,9 +3,7 @@
 import sched
 import time
 
-import ClientEndpoint
-import Downloads
-import Parser
+from Classes import ClientEndpoint, Downloads, Parser
 
 sonarr_client = Downloads.ArrClient(url='http://sonarr.local:6880/api', api_key='589b093bc3484ea5b941173280df0911')
 radarr_client = Downloads.ArrClient(url='http://radarr.local:6880/api', api_key='dac2ba0c443f4798b9949a8de76c4d6b')
@@ -21,26 +19,32 @@ def get_downloads(DownloadsClient):
     return DownloadsClient.get()
 
 
-def remove_complete_torrents(torrent_list, sonarr_list):
+def completed_torrent_list(download_list, completed_list):
     remove_list = []
-    for torrent in torrent_list:
-        for history in sonarr_list:
+    for torrent in download_list:
+        for history in completed_list:
             if torrent[0] in history:
-                print(f"Removing: {torrent[0]}")
                 remove_list.append(torrent[1])
+    return remove_list
 
-    qb.delete_permanently(remove_list)
+
+def remove_complete(DownloadsClient, remove_list):
+    if len(remove_list) > 0:
+        DownloadsClient.remove(remove_list)
 
 
-def pause_complete():
-    torrents = get_downloads()
-    if len(torrents) > 0:
-        qb.pause_multiple(torrents[0][1])
+def pause_complete(DownloadsClient, pause_list):
+    if len(pause_list) > 0:
+        DownloadsClient.pause(pause_list)
+
+
+def parse_list(IParser, torrent_list):
+    return IParser.parse_list(torrent_list)
 
 
 def run():
     torrents = get_downloads(qbit_client)
-    download_list = Parser.QBitTorrentParser.parse_list(torrents)
+    download_list = parse_list(Parser.QBitTorrentParser, torrents)
 
     if len(torrents) > -1:
         sonarr_list = get_downloads(sonarr_client)
@@ -49,11 +53,15 @@ def run():
         radarr_list = get_downloads(radarr_client)
         radarr_list = Parser.RadarrParser.parse_list(radarr_list)
 
-        combined_list = sonarr_list + radarr_list
+        completed_list = sonarr_list + radarr_list
+        to_remove_list = completed_torrent_list(download_list, completed_list)
 
-        remove_complete_torrents(download_list, combined_list)
+        remove_complete(qbit_client, to_remove_list)
 
-        pause_complete()
+        torrents = get_downloads(qbit_client)
+        download_list = parse_list(Parser.QBitTorrentParser, torrents)
+        pause_complete(qbit_client, download_list)
+
     s.enter(300, 1, run, ())
     s.run()
 
