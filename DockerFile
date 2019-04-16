@@ -1,6 +1,8 @@
-FROM python:3-alpine
-RUN pip install qbittorrent
+FROM python:3-slim
+ADD requirements.txt /
 ADD main.py /
 ADD sonarr_api.py /
+ADD Classes /Classes
+RUN pip install -r requirements.txt
 
 CMD [ "python", "./main.py" ]

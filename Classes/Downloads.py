@@ -16,9 +16,11 @@ class QBitTorrentClient(IDownloadsClient):
             self.password = kwargs.get('password')
             self.client = Client(self.url)
             self.client.login(self.user, self.password)  # not required when 'Bypass from localhost' qb.login()
+            # self.client.login()
 
     def get(self):
-        return self.client.torrents()
+        a = self.client.torrents()
+        return a
 
     def pause(self, pause_list):
         for item in pause_list:
@@ -31,7 +33,9 @@ class QBitTorrentClient(IDownloadsClient):
         pass
 
     def remove(remove_list):
-        self.client.delete_permanently(remove_list['hash'])
+        # self.client.delete_permanently(remove_list['hash'])
+        # print(f'removing {remove_list['hash']}')
+        pass
 
 
 class ArrClient(IDownloadsClient):

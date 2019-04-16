@@ -2,15 +2,28 @@
 
 import sched
 import time
+import os
+import requests
 
 from Classes import ClientEndpoint, Downloads, Parser
 
-sonarr_client = Downloads.ArrClient(url='http://sonarr.local:6880/api', api_key='589b093bc3484ea5b941173280df0911')
-radarr_client = Downloads.ArrClient(url='http://radarr.local:6880/api', api_key='dac2ba0c443f4798b9949a8de76c4d6b')
+sonarr_client = Downloads.ArrClient(
+    url="http://sonarr.local:6880/api", api_key="589b093bc3484ea5b941173280df0911"
+)
+radarr_client = Downloads.ArrClient(
+    url="http://radarr.local:6880/api", api_key="dac2ba0c443f4798b9949a8de76c4d6b"
+)
 qbit_client = Downloads.QBitTorrentClient(
-    url='http://qbittorrent.local:6880/',
-    user='admin',
-    password='adminadmin')
+    url="http://qbittorrent.local:6880/", user="admin", password="adminadmin"
+)
+
+
+# sonarr_client = Downloads.ArrClient(url='http://sonarr:8080/api', api_key='589b093bc3484ea5b941173280df0911')
+# radarr_client = Downloads.ArrClient(url='http://radarr:8080/api', api_key='dac2ba0c443f4798b9949a8de76c4d6b')
+# qbit_client = Downloads.QBitTorrentClient(
+#     url='http://qbittorrent:8080/',
+#     user='admin',
+#     password='adminadmin')
 
 s = sched.scheduler(time.time, time.sleep)
 
@@ -44,9 +57,10 @@ def parse_list(IParser, torrent_list):
 
 def run():
     torrents = get_downloads(qbit_client)
-    download_list = parse_list(Parser.QBitTorrentParser, torrents)
 
-    if len(torrents) > -1:
+    if len(torrents) > 0:
+
+        download_list = parse_list(Parser.QBitTorrentParser, torrents)
         sonarr_list = get_downloads(sonarr_client)
         sonarr_list = Parser.SonarrParser.parse_list(sonarr_list)
 
@@ -66,5 +80,44 @@ def run():
     s.run()
 
 
-if __name__ == '__main__':
-    run()
+if __name__ == "__main__":
+    from qbittorrent import Client
+    from sonarr_api import SonarrAPI
+
+    qb = Client('http://qbittorrent.local:6880/')
+    qb.login('admin', 'adminadmin')
+    torrents = qb.torrents(filter='completed')
+
+    downloads = {}
+    if len(torrents) > 0:
+        for torrent in torrents:
+            downloads[torrent['name']] = torrent['hash']
+
+    sonarr_client = SonarrAPI("http://sonarr.local:6880/api", "589b093bc3484ea5b941173280df0911")
+    son_hist = sonarr_client.get_history_size(100)
+
+    hist_list = {}
+    for record in son_hist['records']:
+        if 'eventType' in record:
+            if record['eventType'] == 'downloadFolderImported':
+                hist_list[record['sourceTitle']] = None
+
+    radarr_client = SonarrAPI("http://radarr.local:6880/api", "dac2ba0c443f4798b9949a8de76c4d6b")
+    rad_hist = radarr_client.get_history_size(100)
+
+    for record in rad_hist['records']:
+        if 'eventType' in record:
+            if record['eventType'] == 'downloadFolderImported':
+                hist_list[record['sourceTitle']] = None
+
+    can_remove = downloads.keys() & hist_list.keys()
+
+    delete_list = []
+    for downloads in can_remove:
+        print(downloads.values())
+
+
+    qb.delete_permanently(list(can_remove))
+    print("hist_list")
+
+    # run()

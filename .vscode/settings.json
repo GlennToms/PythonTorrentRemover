@@ -4,5 +4,7 @@
     "python.linting.enabled": true,
     "python.linting.pep8Args": [
         "--ignore=E501"
-    ]
+    ],
+    "docker.defaultRegistryPath": "glenntoms",
+    "python.formatting.provider": "black"
 }

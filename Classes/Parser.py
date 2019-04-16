@@ -28,7 +28,7 @@ class SonarrParser(IParser):
     def parse_list(list):
         hist_list = []
         for record in list['records']:
-            if record['data']['downloadClient'] == 'QBittorrent':
+            if record.get(['data']['downloadClient'], _) == 'qbit':
                 print(f"Sonarr: {record['data']['downloadClient']} - {record['sourceTitle']}")
                 hist_list.append(record['sourceTitle'])
         return hist_list
