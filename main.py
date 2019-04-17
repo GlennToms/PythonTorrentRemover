@@ -113,11 +113,12 @@ if __name__ == "__main__":
     can_remove = downloads.keys() & hist_list.keys()
 
     delete_list = []
-    for downloads in can_remove:
-        print(downloads.values())
+    for name, hash_ in downloads.items():
+        if name in can_remove:
+            print(f'IN: {name}')
+            delete_list.append(hash_)
+        else:
+            print(f'OUT: {name}')
 
-
-    qb.delete_permanently(list(can_remove))
+    qb.delete_permanently(list(delete_list))
     print("hist_list")
-
-    # run()
