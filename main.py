@@ -18,8 +18,8 @@ def run():
         if len(torrents) > 0:
             for torrent in torrents:
                 downloads[torrent['name']] = torrent['hash']
+                qb.pause(torrent['hash'])
 
-            qb.pause_multiple(list(downloads.values()))
             print(f'Found {len(downloads)} Torrent(s)')
 
             sonarr_client = SonarrAPI("http://sonarr.local:6880/api", "589b093bc3484ea5b941173280df0911")
