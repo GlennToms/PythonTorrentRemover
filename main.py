@@ -39,6 +39,16 @@ def run():
                     if record['eventType'] == 'downloadFolderImported':
                         hist_list[record['sourceTitle']] = None
 
+            lidarr_client = SonarrAPI("http://lidarr.local:6880/api/v1", "3ea81e58ffc149a8803d86c008c8c81e")
+            lid_hist = lidarr_client.get_history_size(100)
+
+            lidarr_list = []
+            for record in lid_hist['records']:
+                if 'eventType' in record:
+                    if record['eventType'] == 'trackFileImported':
+                        print(f"Removing: {record['sourceTitle']}")
+                        lidarr_list.append(record['downloadId'])
+
             can_remove = downloads.keys() & hist_list.keys()
 
             delete_list = []
@@ -47,7 +57,8 @@ def run():
                     print(f'Removing: {name}')
                     delete_list.append(hash_)
 
-            qb.delete_permanently(list(delete_list))
+            combind_list = list(delete_list) + list(set(lidarr_list))
+            qb.delete_permanently(combind_list)
 
         else:
             print("No torrents in a 'Completed' state.")
