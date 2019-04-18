@@ -46,7 +46,7 @@ def run():
             for record in lid_hist['records']:
                 if 'eventType' in record:
                     if record['eventType'] == 'trackFileImported':
-                        print(f"Removing: {record['sourceTitle']}")
+                        # print(f"Removing: {record['sourceTitle']}")
                         lidarr_list.append(record['downloadId'])
 
             can_remove = downloads.keys() & hist_list.keys()
@@ -54,7 +54,7 @@ def run():
             delete_list = []
             for name, hash_ in downloads.items():
                 if name in can_remove:
-                    print(f'Removing: {name}')
+                    # print(f'Removing: {name}')
                     delete_list.append(hash_)
 
             combind_list = list(delete_list) + list(set(lidarr_list))
