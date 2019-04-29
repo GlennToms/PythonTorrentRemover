@@ -80,9 +80,9 @@ class SonarrAPI(object):
         return res.json()
 
 
-    def get_history_size(self, page_size):
+    def get_history_size(self, page_size, page=0):
         """Gets history (grabs/failures/completed)"""
-        res = self.request_get("{}/history?pageSize={}".format(self.host_url, page_size))
+        res = self.request_get("{}/history?pageSize={}&page={}".format(self.host_url, page_size, page))
         return res.json()
 
 
