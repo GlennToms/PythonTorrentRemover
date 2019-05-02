@@ -76,7 +76,7 @@ def run():
             delete_list = []
             for name, hash_ in downloads.items():
                 if name in can_remove:
-                    # print(f'Removing: {name}')
+                    print(f'Removing: {name}')
                     delete_list.append(hash_)
 
             combind_list = list(delete_list) + list(set(lidarr_list))
@@ -88,7 +88,7 @@ def run():
     except Exception as e:
         print("FAILED {e}")
 
-    print("Loop Completed")
+    print("Waiting 5 minutes")
     s.enter(300, 1, run, ())
     s.run()
 
